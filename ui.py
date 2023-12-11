@@ -1,4 +1,5 @@
 import os
+import math
 
 from game import Game
 from player import Player
@@ -7,7 +8,8 @@ from player import Player
 class UI:
     def __init__(self, columns) -> None:
         self.columns = columns
-        pass
+        self.colors = ["\033[90m", "\033[94m", "\033[92m", "\033[91m", "\033[93m"]
+        self.end_color = "\033[0m"
 
     def draw_frame(self, game: Game, player: Player, turn: int) -> None:
         os.system("cls" if os.name == "nt" else "clear")
@@ -15,16 +17,16 @@ class UI:
         print("\n")
         print(f"turn: {turn}".center(self.columns))
         print("\n")
-        print(self.draw_stacks(game.show_stack()))
+        print(self.draw_cards(game.show_stack()))
         print("\n\n")
         print(f"{player.identity()}'s stack".center(self.columns))
-        print(self.draw_card(player.show_stack()))
+        print(self.draw_cards([player.show_stack()]))
         print("\n")
         print(f"{player.identity()}'s waiting stack".center(self.columns))
-        print(self.draw_stacks(player.show_waiting_stack()))
+        print(self.draw_cards(player.show_waiting_stack()))
         print("\n")
         print(f"{player.identity()}'s hand".center(self.columns))
-        print(self.draw_hand(player.show_hand()))
+        print(self.draw_cards(player.show_hand()))
         print("\n")
         print("0 (take from stack) 0-3 (target stack)".center(self.columns))
         print(
@@ -44,51 +46,38 @@ class UI:
         )
         print("\n")
 
-    def draw_card(self, number: int) -> str:
-        top = " _____ ".center(self.columns)
-        padding = "|     |".center(self.columns)
-        value = f'|{f"{number}".center(5)}|'.center(self.columns)
-        bottom = "|_____|".center(self.columns)
+    def draw_cards(self, cards: list[int]) -> str:
+        cards_template: list[str] = [
+            "",
+            "",
+            "",
+            "",
+        ]  # [0] top  [1] padding  [2] value  [3] bottom
 
-        return "\n".join([top, padding, value, bottom])
+        for card in cards:
+            color = self.colors[math.ceil(card / 4)]
 
-    def draw_stacks(self, cards: list[int]) -> str:
-        if len(cards) > 4:
-            cards = cards[:4]
-        elif len(cards) < 4:
-            cards.extend([0 for _ in range(4 - len(cards))])
+            if len(cards_template[0]):
+                cards_template[0] += "       "
+            if len(cards_template[1]):
+                cards_template[1] += "       "
+            if len(cards_template[2]):
+                cards_template[2] += "       "
+            if len(cards_template[3]):
+                cards_template[3] += "       "
 
-        top = " _____         _____         _____         _____ ".center(self.columns)
-        padding = "|     |       |     |       |     |       |     |".center(
-            self.columns
-        )
-        value = f'|{f"{cards[0]}".center(5)}|       |{f"{cards[1]}".center(5)}|       |{f"{cards[2]}".center(5)}|       |{f"{cards[3]}".center(5)}|'.center(
-            self.columns
-        )
-        bottom = "|_____|       |_____|       |_____|       |_____|".center(
-            self.columns
-        )
+            cards_template[0] += f"{color} _____ {self.end_color}"
+            cards_template[1] += f"{color}|     |{self.end_color}"
+            cards_template[
+                2
+            ] += f'{color}|{(str(card) if card != 13 else "Ski").center(5)}|{self.end_color}'
+            cards_template[3] += f"{color}|_____|{self.end_color}"
 
-        return "\n".join([top, padding, value, bottom])
-
-    def draw_hand(self, hand: list[int]) -> str:
-        new_hand = hand + [0 for _ in range(5 - len(hand))]
-
-        top = " _____         _____         _____         _____         _____ ".center(
-            self.columns
-        )
-        padding = (
-            "|     |       |     |       |     |       |     |       |     |".center(
+        for i in range(len(cards_template)):
+            cards_template[i] = cards_template[i].center(
                 self.columns
+                + 7 * (len(cards) if len(cards) == 1 else len(cards) + 1)
+                + 1
             )
-        )
-        value = f'|{f"{new_hand[0]}".center(5)}|       |{f"{new_hand[1]}".center(5)}|       |{f"{new_hand[2]}".center(5)}|       |{f"{new_hand[3]}".center(5)}|       |{f"{new_hand[4]}".center(5)}|'.center(
-            self.columns
-        )
-        bottom = (
-            "|_____|       |_____|       |_____|       |_____|       |_____|".center(
-                self.columns
-            )
-        )
 
-        return "\n".join([top, padding, value, bottom])
+        return "\n".join(cards_template)

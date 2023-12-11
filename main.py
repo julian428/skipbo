@@ -1,6 +1,4 @@
-from random import randint
 import shutil
-from time import sleep
 
 from game import Game
 from player import Player
