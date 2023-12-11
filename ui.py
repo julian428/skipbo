@@ -76,7 +76,7 @@ class UI:
         for i in range(len(cards_template)):
             cards_template[i] = cards_template[i].center(
                 self.columns
-                + 7 * (len(cards) if len(cards) == 1 else len(cards) + 1)
+                + 7 * (len(cards) if len(cards) < 4 else len(cards) + 1)
                 + 1
             )
 

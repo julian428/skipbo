@@ -23,8 +23,11 @@ class Game:
         stack_value = self.__stack[stack_index]
         if value > 13:
             return False
-        elif stack_value == 12 and value == 1:
-            self.__stack[stack_index] = value
+        elif stack_value == 12 and (value == 1 or value == 13):
+            self.__stack[stack_index] = 1
+            return True
+        elif value == 13:
+            self.__stack[stack_index] += 1
             return True
         elif value != stack_value + 1:
             return False
