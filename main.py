@@ -5,6 +5,18 @@ from player import Player
 from ui import UI
 
 
+def parse_action(action: str) -> list[int]:
+    actions: list[int] = []
+    for l in action:
+        if l.isdigit():
+            actions.append(int(l))
+
+    if len(actions) < 3:
+        actions.extend([0, 0, 0])
+
+    return actions[:3]
+
+
 if __name__ == "__main__":
     columns = shutil.get_terminal_size().columns
 
@@ -26,36 +38,30 @@ if __name__ == "__main__":
 
         ui.draw_frame(game, player, turn)
         action = input("action: ")
+        command, target, origin = parse_action(action)
 
         # place something from stack
-        if action.startswith("0"):
-            target = int(action.split(" ")[1])
+        if command == 0:
             player_stack = player.show_stack()
 
             added = game.add_to_stack(target, player_stack)
             if added:
                 player.give_stack_card()
 
-        elif action.startswith("1"):
-            target = int(action.split(" ")[1])
-            origin = int(action.split(" ")[2])
-
+        # place something from waiting stack
+        elif command == 1:
             added = game.add_to_stack(target, player.show_waiting_stack()[origin])
             if added:
                 player.give_wait_card(origin)
 
-        elif action.startswith("2"):
-            target = int(action.split(" ")[1])
-            origin = int(action.split(" ")[2])
-
+        # place something from the hand
+        elif command == 2:
             added = game.add_to_stack(target, player.show_hand()[origin])
             if added:
                 player.give_card(origin)
 
-        elif action.startswith("3"):
-            target = int(action.split(" ")[1])
-            origin = int(action.split(" ")[2])
-
+        # end turn
+        elif command == 3:
             player.end_turn(origin, target)
             player.take_cards(game.give_cards(5 - len(player.show_hand())))
             turn += 1
