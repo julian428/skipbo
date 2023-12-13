@@ -19,7 +19,7 @@ def parse_action(action: str) -> list[int]:
     return actions[:3]
 
 
-if __name__ == "__main__":
+def game_loop(verbose=True) -> int:
     columns = shutil.get_terminal_size().columns
     stack_size = 30
 
@@ -28,24 +28,25 @@ if __name__ == "__main__":
 
     ui = UI(columns)
 
-    # game loop
     action = ""
     turn = 1
 
     while action != "exit":
         if not player.show_stack():
-            ui.draw_frame(game, player, turn)
-            print(f"You Won! in {turn} turns".center(columns))
+            if verbose:
+                ui.draw_frame(game, player, turn)
+                print(f"You Won! in {turn} turns".center(columns))
             break
 
         if not len(player.show_hand()):
             player.take_cards(game.give_cards(5))
 
-        ui.draw_frame(game, player, turn)
+        if verbose:
+            ui.draw_frame(game, player, turn)
 
         if isinstance(player, ComputerPlayer):
             action = player.make_dumbmove(game.show_stack())
-            sleep(0.2)
+            sleep(verbose * 0.2)
         else:
             action = input("action: ")
 
@@ -97,3 +98,13 @@ if __name__ == "__main__":
             player.end_turn(origin, target)
             player.take_cards(game.give_cards(5 - len(player.show_hand())))
             turn += 1
+
+    return turn
+
+
+if __name__ == "__main__":
+    games = 0
+    r = 100
+    for i in range(r):
+        games += game_loop(False)
+    print(games / r)

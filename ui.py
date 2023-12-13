@@ -93,6 +93,8 @@ class UI:
             cards_template[3] += f"{color}|_____|{self.end_color}"
 
         for i in range(len(cards_template)):
-            cards_template[i] = cards_template[i].center(self.columns)
+            cards_template[i] = cards_template[i].center(
+                self.columns + (len(cards_template[i]) // 3 + 4)
+            )
 
         return "\n".join(cards_template)

@@ -57,7 +57,6 @@ class Game:
 
     def give_cards(self, quantity: int) -> list[int]:
         if len(self.__cards) < quantity:
-            print("you lost")
             return []
         player_cards = self.__cards[-quantity:]
         self.__cards = self.__cards[:-quantity]
