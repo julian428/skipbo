@@ -12,6 +12,9 @@ class Player:
     def show_hand(self) -> list[int]:
         return self.__hand
 
+    def stack_length(self) -> int:
+        return len(self.__stack)
+
     def show_stack(self) -> int:
         if len(self.__stack) < 1:
             return 0

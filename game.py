@@ -5,6 +5,20 @@ class Game:
     def __init__(self) -> None:
         self.__stack = [[0], [0], [0], [0]]
         self.__cards = self.shuffle_cards()
+        self.__turn = 1
+        self.__points = 0
+
+    def next_turn(self) -> None:
+        self.__turn += 1
+
+    def show_points(self) -> int:
+        return self.__points
+
+    def add_points(self, value: int) -> None:
+        self.__points += value
+
+    def show_turn(self) -> int:
+        return self.__turn
 
     def show_stack(self) -> list[int]:
         top_stack = [self.joker_to_value(i) for i in range(len(self.__stack))]

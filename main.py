@@ -19,104 +19,119 @@ def parse_action(action: str) -> list[int]:
     return actions[:3]
 
 
-def game_loop(player_type="p", verbose=True) -> int:
-    columns = shutil.get_terminal_size().columns
-    stack_size = 30
+# False - won, True - next turn
+def player_turn(
+    game: Game,
+    player: Player,
+    ui: UI,
+    type="p",
+    players: list[Player] = [],
+    verbose: bool = True,
+) -> bool:
+    turn = game.show_turn()
 
-    game = Game()
-    player: Player | ComputerPlayer = Player([])
-    if player_type == "p":
-        player = Player(game.give_cards(stack_size))
-    elif player_type[0] == "c":
-        player = ComputerPlayer(game.give_cards(stack_size))
-
-    ui = UI(columns)
+    if verbose:
+        ui.draw_frame(game, player, turn)
 
     action = ""
-    turn = 1
+    if isinstance(player, ComputerPlayer):
+        if len(type) and type[1] == "d":
+            action = player.make_dumbmove(game.show_stack())
+        elif len(type) and type[1] == "b":
+            action = player.make_beginnermove(game.show_stack())
+        if verbose:
+            sleep(0.5)
+    else:
+        action = input("action: ")
 
-    while action != "exit":
-        if not player.show_stack():
-            if verbose:
-                ui.draw_frame(game, player, turn)
-                print(f"You Won! in {turn} turns".center(columns))
-            break
+    command, target, origin = parse_action(action)
+
+    # place something from stack
+    if command == 0:
+        player_stack = player.show_stack()
+
+        added = game.add_to_stack(target, player_stack)
+        if added:
+            player.give_stack_card()
+
+    # place something from waiting stack
+    elif command == 1:
+        w_stack = player.show_waiting_stack()
+
+        if len(w_stack) - 1 < origin:
+            origin = len(w_stack) - 1
+
+        added = game.add_to_stack(target, w_stack[origin])
+        if added:
+            player.give_wait_card(origin)
+
+    # place something from the hand
+    elif command == 2:
+        hand = player.show_hand()
+
+        if len(hand) - 1 < origin:
+            origin = len(hand) - 1
+
+        added = game.add_to_stack(target, hand[origin])
+        if added:
+            player.give_card(origin)
 
         if not len(player.show_hand()):
             player.take_cards(game.give_cards(5))
 
+    # end turn
+    elif command == 3:
+        player.end_turn(origin, target)
+        player.take_cards(game.give_cards(5 - len(player.show_hand())))
+        return True
+
+    if not player.show_stack():
         if verbose:
             ui.draw_frame(game, player, turn)
+        for plyr in players:
+            game.add_points(plyr.stack_length())
+        if verbose:
+            print(
+                f"{player.identity()} Won! in {turn} turns, with {game.show_points()} points."
+            )
+        return False
 
-        if isinstance(player, ComputerPlayer):
-            if len(player_type) and player_type[1] == "d":
-                action = player.make_dumbmove(game.show_stack())
-            elif len(player_type) and player_type[1] == "b":
-                action = player.make_beginnermove(game.show_stack())
-            sleep(verbose * 0.5)
-        else:
-            action = input("action: ")
+    return player_turn(game, player, ui, type, players, verbose)
 
-        if action == "help":
-            ui.show_help()
-            input("Press enter to continue")
-            continue
-        elif action == "reset":
-            game = Game()
-            if player_type == "p":
-                player = Player(game.give_cards(stack_size))
-            elif player_type == "c":
-                player = ComputerPlayer(game.give_cards(stack_size))
-            turn = 1
-            action = "0"
-            continue
 
-        command, target, origin = parse_action(action)
+def game_loop(verbose: bool = True) -> dict[str, str]:
+    end = True
 
-        # place something from stack
-        if command == 0:
-            player_stack = player.show_stack()
+    game = Game()
+    player0 = ComputerPlayer(game.give_cards(30), "Dumb Computer")
+    player0.take_cards(game.give_cards(5))
+    player1 = ComputerPlayer(game.give_cards(30), "Beginner Computer")
+    player1.take_cards(game.give_cards(5))
+    ui = UI(shutil.get_terminal_size().columns)
 
-            added = game.add_to_stack(target, player_stack)
-            if added:
-                player.give_stack_card()
+    winner = ""
 
-        # place something from waiting stack
-        elif command == 1:
-            w_stack = player.show_waiting_stack()
-
-            if len(w_stack) - 1 < origin:
-                origin = len(w_stack) - 1
-
-            added = game.add_to_stack(target, w_stack[origin])
-            if added:
-                player.give_wait_card(origin)
-
-        # place something from the hand
-        elif command == 2:
-            hand = player.show_hand()
-
-            if len(hand) - 1 < origin:
-                origin = len(hand) - 1
-
-            added = game.add_to_stack(target, hand[origin])
-            if added:
-                player.give_card(origin)
-
-        # end turn
-        elif command == 3:
-            player.end_turn(origin, target)
-            player.take_cards(game.give_cards(5 - len(player.show_hand())))
-            turn += 1
-
-    return turn
+    while end:
+        end = player_turn(game, player0, ui, "cd", [player1], verbose)
+        if end == False:
+            winner = player0.identity()
+            break
+        end = player_turn(game, player1, ui, "cb", [player0], verbose)
+        if end == False:
+            winner = player1.identity()
+            break
+        game.next_turn()
+    return {"name": winner, "points": str(game.show_points())}
 
 
 if __name__ == "__main__":
-    games = 0
-    r = 1
+    players = {"Dumb Computer": "0", "Beginner Computer": "0"}
 
-    # p - player, cd - compute_dumb, cb - computer_beginner
-    for i in range(r):
-        games += game_loop("cb", True)
-    print(games / r)
+    games = 1
+    for game in range(games):
+        results = game_loop(verbose=True)
+
+        current_player_points = int(players[results["name"]])
+        players[results["name"]] = str(current_player_points + int(results["points"]))
+
+    print(players)
