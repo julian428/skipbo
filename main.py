@@ -1,7 +1,8 @@
 import shutil
+from time import sleep
 
 from game import Game
-from DumbPlayer import DumbPlayer
+from computerplayer import ComputerPlayer
 from player import Player
 from ui import UI
 
@@ -21,12 +22,11 @@ def parse_action(action: str) -> list[int]:
 if __name__ == "__main__":
     columns = shutil.get_terminal_size().columns
     name = "Julian"
-    name2 = "Computer"
     stack_size = 30
 
     game = Game()
-    player = Player(game.give_cards(stack_size), name)
-    player2 = DumbPlayer(game.give_cards(stack_size), name2)
+    player = ComputerPlayer(game.give_cards(stack_size), name)
+
     ui = UI(columns)
 
     # game loop
@@ -35,6 +35,7 @@ if __name__ == "__main__":
 
     while action != "exit":
         if not player.show_stack():
+            ui.draw_frame(game, player, turn)
             print(f"You Won! in {turn} turns".center(columns))
             break
 
@@ -42,7 +43,12 @@ if __name__ == "__main__":
             player.take_cards(game.give_cards(5))
 
         ui.draw_frame(game, player, turn)
-        action = input("action: ")
+
+        if player is Player:
+            action = input("action: ")
+        else:
+            action = player.make_dumbmove(game.show_stack())
+            sleep(0.3)
 
         if action == "help":
             ui.show_help()
@@ -50,10 +56,11 @@ if __name__ == "__main__":
             continue
         elif action == "reset":
             game = Game()
-            player = Player(game.give_cards(stack_size), name)
+            player = ComputerPlayer(game.give_cards(stack_size), name)
             turn = 1
             action = "0"
             continue
+
         command, target, origin = parse_action(action)
 
         # place something from stack

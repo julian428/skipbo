@@ -52,7 +52,7 @@ class Player:
     def give_wait_card(self, wait_stack_index: int) -> int:
         return self.__wait_stack[wait_stack_index].pop(-1)
 
-    def available_moves(self, stack: list[int]) -> dict[str, list[int]]:
+    def available_moves(self, stack: list[int]) -> dict[str, list[str]]:
         moves = {"stack": [], "w_stack": [], "hand": [], "end_turn": []}
         waiting_stack = self.show_waiting_stack()
         stack_card = self.show_stack()
@@ -60,17 +60,32 @@ class Player:
 
         for i, card in enumerate(stack):
             # player stack moves
-            if stack_card == 13 or stack_card == card + 1:
+            if (
+                stack_card == 13
+                or stack_card == card + 1
+                or (stack_card == 13 or stack_card == 1)
+                and card == 12
+            ):
                 moves["stack"].append("0" + str(i))
 
             # player waiting stack moves
             for j, w_card in enumerate(waiting_stack):
-                if w_card == 13 or w_card == card + 1:
+                if (
+                    w_card == 13
+                    or w_card == card + 1
+                    or (w_card == 13 or w_card == 1)
+                    and card == 12
+                ):
                     moves["w_stack"].append("1" + str(i) + str(j))
 
             # player hand moves
             for j, h_card in enumerate(hand):
-                if h_card == 13 or h_card == card + 1:
+                if (
+                    h_card == 13
+                    or h_card == card + 1
+                    or (h_card == 13 or h_card == 1)
+                    and card == 12
+                ):
                     moves["hand"].append("2" + str(i) + str(j))
 
             for j in range(len(hand)):
