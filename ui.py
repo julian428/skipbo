@@ -25,26 +25,36 @@ class UI:
         print("\n")
         print(f"{player.identity()}'s hand".center(self.columns))
         print(self.draw_cards(player.show_hand()))
+        print("\n\n")
+        print("type 'help' to get help".center(self.columns))
+        print("\n")
 
     def show_help(self) -> None:
         os.system("cls" if os.name == "nt" else "clear")
+        print("\n")
+        print("type 'exit' to exit game".center(self.columns))
+        print("\n")
+        print("type 'reset' to restart game".center(self.columns))
+        print("\n")
         print("0 (take from stack) 0-3 (target stack)".center(self.columns))
+        print("\n")
         print(
             "1 (take from waiting stacks) 0-3 (target stack) 0-3 (origin stack)".center(
                 self.columns
             )
         )
+        print("\n")
         print(
             "2 (take from hand) 0-3 (target stack) 0-4 (origin hand index)".center(
                 self.columns
             )
         )
+        print("\n")
         print(
             "3 (end turn) 0-3 (target waiting stack) 0-4 (origin hand index)".center(
                 self.columns
             )
         )
-        print("\n")
 
     def draw_cards(self, cards: list[int]) -> str:
         cards_template: list[str] = [
