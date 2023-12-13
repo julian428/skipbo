@@ -19,9 +19,11 @@ def parse_action(action: str) -> list[int]:
 
 if __name__ == "__main__":
     columns = shutil.get_terminal_size().columns
+    name = "Julian"
+    stack_size = 30
 
     game = Game()
-    player = Player(game.give_cards(30), "Julian")
+    player = Player(game.give_cards(stack_size), name)
     ui = UI(columns)
 
     # game loop
@@ -38,12 +40,17 @@ if __name__ == "__main__":
 
         ui.draw_frame(game, player, turn)
         action = input("action: ")
+
         if action == "help":
             ui.show_help()
             input("Press enter to continue")
             continue
-        if action == "reset":
-            pass
+        elif action == "reset":
+            game = Game()
+            player = Player(game.give_cards(stack_size), name)
+            turn = 1
+            action = "0"
+            continue
         command, target, origin = parse_action(action)
 
         # place something from stack
