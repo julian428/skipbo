@@ -1,4 +1,5 @@
 from random import shuffle
+from time import sleep
 
 
 class Game:
@@ -15,7 +16,7 @@ class Game:
         shuffle(cards)
         return cards
 
-    def refill_stack(self, stack_index: int) -> None:
+    def refill_cards(self, stack_index: int) -> None:
         cards = self.__stack[stack_index][1:]
         shuffle(cards)
         self.__cards = cards + self.__cards
@@ -31,17 +32,17 @@ class Game:
         jokers = 0
         while stack_value == 13:
             jokers += 1
-            stack_value = self.__stack[stack_index][-(jokers + 1)]
+            stack_value = self.__stack[stack_index][-1 * (jokers + 1)]
 
         stack_value += jokers
 
         if value > 13:
             return False
         elif stack_value == 12 and (value == 1 or value == 13):
-            self.refill_stack(stack_index)
+            self.refill_cards(stack_index)
             self.__stack[stack_index] = [0, value]
             return True
-        elif value != stack_value + 1:
+        elif value != 13 and value != stack_value + 1:
             return False
 
         self.__stack[stack_index].append(value)

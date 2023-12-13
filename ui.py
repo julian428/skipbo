@@ -13,8 +13,6 @@ class UI:
 
     def draw_frame(self, game: Game, player: Player, turn: int) -> None:
         os.system("cls" if os.name == "nt" else "clear")
-        print("Skipbo".center(self.columns))
-        print("\n")
         print(f"turn: {turn}".center(self.columns))
         print("\n")
         print(self.draw_cards(game.show_stack()))
