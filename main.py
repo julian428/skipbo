@@ -1,6 +1,7 @@
 import shutil
 
 from game import Game
+from DumbPlayer import DumbPlayer
 from player import Player
 from ui import UI
 
@@ -20,14 +21,16 @@ def parse_action(action: str) -> list[int]:
 if __name__ == "__main__":
     columns = shutil.get_terminal_size().columns
     name = "Julian"
+    name2 = "Computer"
     stack_size = 30
 
     game = Game()
     player = Player(game.give_cards(stack_size), name)
+    player2 = DumbPlayer(game.give_cards(stack_size), name2)
     ui = UI(columns)
 
     # game loop
-    action = "0"
+    action = ""
     turn = 1
 
     while action != "exit":
@@ -63,13 +66,23 @@ if __name__ == "__main__":
 
         # place something from waiting stack
         elif command == 1:
-            added = game.add_to_stack(target, player.show_waiting_stack()[origin])
+            w_stack = player.show_waiting_stack()
+
+            if len(w_stack) - 1 < origin:
+                origin = len(w_stack) - 1
+
+            added = game.add_to_stack(target, w_stack[origin])
             if added:
                 player.give_wait_card(origin)
 
         # place something from the hand
         elif command == 2:
-            added = game.add_to_stack(target, player.show_hand()[origin])
+            hand = player.show_hand()
+
+            if len(hand) - 1 < origin:
+                origin = len(hand) - 1
+
+            added = game.add_to_stack(target, hand[origin])
             if added:
                 player.give_card(origin)
 
