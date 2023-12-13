@@ -3,7 +3,7 @@ from player import Player
 
 
 class ComputerPlayer(Player):
-    def __init__(self, stack: list[int], name: str = "Player") -> None:
+    def __init__(self, stack: list[int], name: str = "Computer") -> None:
         super().__init__(stack, name)
 
     def make_dumbmove(self, stack: list[int]) -> str:

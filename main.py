@@ -21,11 +21,10 @@ def parse_action(action: str) -> list[int]:
 
 if __name__ == "__main__":
     columns = shutil.get_terminal_size().columns
-    name = "Julian"
     stack_size = 30
 
     game = Game()
-    player = ComputerPlayer(game.give_cards(stack_size), name)
+    player = ComputerPlayer(game.give_cards(stack_size))
 
     ui = UI(columns)
 
