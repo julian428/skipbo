@@ -15,8 +15,10 @@ class Game:
         shuffle(cards)
         return cards
 
-    def refill_stack(self) -> None:
-        pass
+    def refill_stack(self, stack_index: int) -> None:
+        cards = self.__stack[stack_index][1:]
+        shuffle(cards)
+        self.__cards = cards + self.__cards
 
     def add_to_stack(self, stack_index: int, value: int) -> bool:
         if stack_index > 3:
@@ -25,14 +27,19 @@ class Game:
             stack_index = 0
 
         stack_value = self.__stack[stack_index][-1]
+
+        jokers = 0
+        while stack_value == 13:
+            jokers += 1
+            stack_value = self.__stack[stack_index][-(jokers + 1)]
+
+        stack_value += jokers
+
         if value > 13:
             return False
         elif stack_value == 12 and (value == 1 or value == 13):
-            self.refill_stack()
-            self.__stack[stack_index] = [0, 1]
-            return True
-        elif value == 13:
-            self.__stack[stack_index].append(stack_value + 1)
+            self.refill_stack(stack_index)
+            self.__stack[stack_index] = [0, value]
             return True
         elif value != stack_value + 1:
             return False
