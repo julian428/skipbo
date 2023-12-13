@@ -19,12 +19,16 @@ def parse_action(action: str) -> list[int]:
     return actions[:3]
 
 
-def game_loop(verbose=True) -> int:
+def game_loop(player_type="p", verbose=True) -> int:
     columns = shutil.get_terminal_size().columns
     stack_size = 30
 
     game = Game()
-    player = ComputerPlayer(game.give_cards(stack_size))
+    player: Player | ComputerPlayer = Player([])
+    if player_type == "p":
+        player = Player(game.give_cards(stack_size))
+    elif player_type[0] == "c":
+        player = ComputerPlayer(game.give_cards(stack_size))
 
     ui = UI(columns)
 
@@ -45,8 +49,11 @@ def game_loop(verbose=True) -> int:
             ui.draw_frame(game, player, turn)
 
         if isinstance(player, ComputerPlayer):
-            action = player.make_dumbmove(game.show_stack())
-            sleep(verbose * 0.2)
+            if len(player_type) and player_type[1] == "d":
+                action = player.make_dumbmove(game.show_stack())
+            elif len(player_type) and player_type[1] == "b":
+                action = player.make_beginnermove(game.show_stack())
+            sleep(verbose * 0.5)
         else:
             action = input("action: ")
 
@@ -56,7 +63,10 @@ def game_loop(verbose=True) -> int:
             continue
         elif action == "reset":
             game = Game()
-            player = ComputerPlayer(game.give_cards(stack_size))
+            if player_type == "p":
+                player = Player(game.give_cards(stack_size))
+            elif player_type == "c":
+                player = ComputerPlayer(game.give_cards(stack_size))
             turn = 1
             action = "0"
             continue
@@ -104,7 +114,9 @@ def game_loop(verbose=True) -> int:
 
 if __name__ == "__main__":
     games = 0
-    r = 100
+    r = 1
+
+    # p - player, cd - compute_dumb, cb - computer_beginner
     for i in range(r):
-        games += game_loop(False)
+        games += game_loop("cb", True)
     print(games / r)
