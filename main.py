@@ -55,7 +55,7 @@ if __name__ == "__main__":
             continue
         elif action == "reset":
             game = Game()
-            player = ComputerPlayer(game.give_cards(stack_size), name)
+            player = ComputerPlayer(game.give_cards(stack_size))
             turn = 1
             action = "0"
             continue
