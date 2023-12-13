@@ -52,27 +52,28 @@ class Player:
     def give_wait_card(self, wait_stack_index: int) -> int:
         return self.__wait_stack[wait_stack_index].pop(-1)
 
+    def available_moves(self, stack: list[int]) -> dict[str, list[int]]:
+        moves = {"stack": [], "w_stack": [], "hand": [], "end_turn": []}
+        waiting_stack = self.show_waiting_stack()
+        stack_card = self.show_stack()
+        hand = self.show_hand()
 
-# testing
-if __name__ == "__main__":
-    player = Player([1, 2, 3], "Tester")
+        for i, card in enumerate(stack):
+            # player stack moves
+            if stack_card == 13 or stack_card == card + 1:
+                moves["stack"].append("0" + str(i))
 
-    # identify
-    print(player.identity())
+            # player waiting stack moves
+            for j, w_card in enumerate(waiting_stack):
+                if w_card == 13 or w_card == card + 1:
+                    moves["w_stack"].append("1" + str(i) + str(j))
 
-    # taking
-    print(
-        player.take_cards([0, 1, 2, 3, 4, 5, 6, 7])
-    )  # should give back cards if there are too many
+            # player hand moves
+            for j, h_card in enumerate(hand):
+                if h_card == 13 or h_card == card + 1:
+                    moves["hand"].append("2" + str(i) + str(j))
 
-    # ending
-    player.end_turn(0, 0)
+            for j in range(len(hand)):
+                moves["end_turn"].append("3" + str(i) + str(j))
 
-    # giving
-
-    # showing
-    print(player.show_hand())
-    print(player.show_stack())
-    print(player.show_waiting_stack())
-
-    pass
+        return moves
