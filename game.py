@@ -1,3 +1,4 @@
+import enum
 from random import shuffle
 from time import sleep
 
@@ -8,7 +9,9 @@ class Game:
         self.__cards = self.shuffle_cards()
 
     def show_stack(self) -> list[int]:
-        return [stack[-1] for stack in self.__stack]
+        top_stack = [self.joker_to_value(i) for i in range(len(self.__stack))]
+
+        return top_stack
 
     def shuffle_cards(self, cards: list[int] = []) -> list[int]:
         if not cards:
@@ -21,20 +24,23 @@ class Game:
         shuffle(cards)
         self.__cards = cards + self.__cards
 
+    def joker_to_value(self, stack_index) -> int:
+        jokers = 0
+        stack_value = self.__stack[stack_index][-1]
+        while stack_value == 13:
+            jokers += 1
+            stack_value = self.__stack[stack_index][-1 * (jokers + 1)]
+
+        stack_value += jokers
+        return stack_value
+
     def add_to_stack(self, stack_index: int, value: int) -> bool:
         if stack_index > 3:
             stack_index = 3
         elif stack_index < 0:
             stack_index = 0
 
-        stack_value = self.__stack[stack_index][-1]
-
-        jokers = 0
-        while stack_value == 13:
-            jokers += 1
-            stack_value = self.__stack[stack_index][-1 * (jokers + 1)]
-
-        stack_value += jokers
+        stack_value = self.joker_to_value(stack_index)
 
         if value > 13:
             return False
