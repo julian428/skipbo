@@ -11,6 +11,9 @@ class Game:
 
         return top_stack
 
+    def show_cards_length(self) -> int:
+        return len(self.__cards)
+
     def shuffle_cards(self, cards: list[int] = []) -> list[int]:
         if not cards:
             cards = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12] * 12 + [13] * 18

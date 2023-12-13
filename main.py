@@ -43,11 +43,11 @@ if __name__ == "__main__":
 
         ui.draw_frame(game, player, turn)
 
-        if player is Player:
-            action = input("action: ")
-        else:
+        if isinstance(player, ComputerPlayer):
             action = player.make_dumbmove(game.show_stack())
-            sleep(0.3)
+            sleep(0.2)
+        else:
+            action = input("action: ")
 
         if action == "help":
             ui.show_help()
