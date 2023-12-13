@@ -1,6 +1,4 @@
-import enum
 from random import shuffle
-from time import sleep
 
 
 class Game:

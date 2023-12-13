@@ -25,7 +25,9 @@ class UI:
         print("\n")
         print(f"{player.identity()}'s hand".center(self.columns))
         print(self.draw_cards(player.show_hand()))
-        print("\n")
+
+    def show_help(self) -> None:
+        os.system("cls" if os.name == "nt" else "clear")
         print("0 (take from stack) 0-3 (target stack)".center(self.columns))
         print(
             "1 (take from waiting stacks) 0-3 (target stack) 0-3 (origin stack)".center(

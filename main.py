@@ -38,6 +38,12 @@ if __name__ == "__main__":
 
         ui.draw_frame(game, player, turn)
         action = input("action: ")
+        if action == "help":
+            ui.show_help()
+            input("Press enter to continue")
+            continue
+        if action == "reset":
+            pass
         command, target, origin = parse_action(action)
 
         # place something from stack
