@@ -66,6 +66,11 @@ class UI:
 
         for card in cards:
             color = self.colors[math.ceil(card / 4)]
+            display_value = str(card)
+            if card == 13:
+                display_value = "Ski"
+            elif card == 0:
+                display_value = " "
 
             if len(cards_template[0]):
                 cards_template[0] += "       "
@@ -78,9 +83,7 @@ class UI:
 
             cards_template[0] += f"{color} _____ {self.end_color}"
             cards_template[1] += f"{color}|     |{self.end_color}"
-            cards_template[
-                2
-            ] += f'{color}|{(str(card) if card != 13 else "Ski").center(5)}|{self.end_color}'
+            cards_template[2] += f"{color}|{display_value.center(5)}|{self.end_color}"
             cards_template[3] += f"{color}|_____|{self.end_color}"
 
         for i in range(len(cards_template)):
