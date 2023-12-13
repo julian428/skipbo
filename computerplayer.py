@@ -6,6 +6,18 @@ class ComputerPlayer(Player):
     def __init__(self, stack: list[int], name: str = "Computer") -> None:
         super().__init__(stack, name)
 
+    def make_move(self, stack: list[int], t: str = "0") -> str:
+        if t == "1":
+            return self.make_beginnermove(stack)
+        elif t == "2":
+            # make intermediate move
+            pass
+        elif t == "3":
+            # make advanced move
+            pass
+
+        return self.make_dumbmove(stack)
+
     def make_dumbmove(self, stack: list[int]) -> str:
         moves = self.available_moves(stack)
 

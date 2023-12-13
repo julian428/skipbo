@@ -56,6 +56,39 @@ class UI:
             )
         )
 
+    def draw_menu(self) -> tuple[dict[str, str], dict[str, str]]:
+        os.system("cls" if os.name == "nt" else "clear")
+
+        print("Skipbo")
+        print("\n")
+
+        player0_name = input("Player 0 name: ") or "Player zero"
+        print("\n")
+        print("0 - human, 1 - computer")
+        t = input("Player type: ")
+        player0_type = "0"
+        if t == "1":
+            print("\n")
+            print("0 - dumb level, 1 - beginner level")
+            player0_type = input("Computer level: ") or "0"
+        print("\n\n")
+
+        player1_name = input("Player 1 name: ") or "Player one"
+        print("\n")
+        print("0 - human, 1 - computer")
+        t = input("Player type: ")
+        player1_type = "0"
+        if t == "1":
+            print("\n")
+            print("0 - dumb level, 1 - beginner level")
+            player1_type = input("Computer level: ") or "0"
+        print("\n\n")
+
+        return (
+            {"name": player0_name, "type": player0_type},
+            {"name": player1_name, "type": player1_type},
+        )
+
     def draw_cards(self, cards: list[int]) -> str:
         cards_template: list[str] = [
             "",

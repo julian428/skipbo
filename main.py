@@ -1,3 +1,4 @@
+from inspect import stack
 import shutil
 from time import sleep
 
@@ -5,6 +6,8 @@ from game import Game
 from computerplayer import ComputerPlayer
 from player import Player
 from ui import UI
+
+ui = UI(shutil.get_terminal_size().columns)
 
 
 def parse_action(action: str) -> list[int]:
@@ -24,23 +27,19 @@ def player_turn(
     game: Game,
     player: Player,
     ui: UI,
-    type="p",
+    t: str = "0",
     players: list[Player] = [],
-    verbose: bool = True,
+    delay: float = 0.5,
 ) -> bool:
     turn = game.show_turn()
 
-    if verbose:
+    if delay:
         ui.draw_frame(game, player, turn)
 
     action = ""
     if isinstance(player, ComputerPlayer):
-        if len(type) and type[1] == "d":
-            action = player.make_dumbmove(game.show_stack())
-        elif len(type) and type[1] == "b":
-            action = player.make_beginnermove(game.show_stack())
-        if verbose:
-            sleep(0.5)
+        action = player.make_move(game.show_stack(), t)
+        sleep(delay)
     else:
         action = input("action: ")
 
@@ -86,50 +85,54 @@ def player_turn(
         return True
 
     if not player.show_stack():
-        if verbose:
+        if delay:
             ui.draw_frame(game, player, turn)
         for plyr in players:
             game.add_points(plyr.stack_length())
-        if verbose:
+        if delay:
             print(
                 f"{player.identity()} Won! in {turn} turns, with {game.show_points()} points."
             )
         return False
 
-    return player_turn(game, player, ui, type, players, verbose)
+    return player_turn(game, player, ui, t, players, delay)
 
 
-def game_loop(verbose: bool = True) -> dict[str, str]:
+def game_loop(
+    meta_player0: dict[str, str], meta_player1: dict[str, str], delay: float = 0.5
+) -> dict[str, str]:
     end = True
 
     game = Game()
-    player0 = ComputerPlayer(game.give_cards(30), "Dumb Computer")
+    player0 = ComputerPlayer(game.give_cards(30), meta_player0["name"])
     player0.take_cards(game.give_cards(5))
-    player1 = ComputerPlayer(game.give_cards(30), "Beginner Computer")
+    player1 = ComputerPlayer(game.give_cards(30), meta_player1["name"])
     player1.take_cards(game.give_cards(5))
-    ui = UI(shutil.get_terminal_size().columns)
 
     winner = ""
 
     while end:
-        end = player_turn(game, player0, ui, "cd", [player1], verbose)
+        end = player_turn(game, player0, ui, meta_player0["type"], [player1], delay)
         if end == False:
             winner = player0.identity()
             break
-        end = player_turn(game, player1, ui, "cb", [player0], verbose)
+        sleep(delay)
+        end = player_turn(game, player1, ui, meta_player1["type"], [player0], delay)
         if end == False:
             winner = player1.identity()
             break
+        sleep(delay)
         game.next_turn()
     return {"name": winner, "points": str(game.show_points())}
 
 
 if __name__ == "__main__":
-    players = {"Dumb Computer": "0", "Beginner Computer": "0"}
+    meta0, meta1 = ui.draw_menu()
+    players = {meta0["name"]: "0", meta1["name"]: "0"}
 
     games = 1
     for game in range(games):
-        results = game_loop(verbose=True)
+        results = game_loop(meta0, meta1, 0.05)
 
         current_player_points = int(players[results["name"]])
         players[results["name"]] = str(current_player_points + int(results["points"]))
